@@ -2,7 +2,7 @@ from fastapi import APIRouter, File, UploadFile, Body, Query
 from typing import Literal
 from pydantic import BaseModel
 
-from . import markdown_service
+from . import markdown_service, markdown_fitz_service
 
 router = APIRouter(prefix="/markdown", tags=["Markdown"])
 
@@ -12,7 +12,7 @@ class URLRequest(BaseModel):
 @router.post("/upload-pdf")
 async def upload_pdf(
     file: UploadFile = File(...),
-    view_images: Literal["true", "false"] = Query("false", description="Set 'true' untuk ambil gambar", alias="view_images", title="view_images", )
+    view_images: Literal["true", "false"] = Query("false", description="Set 'true' untuk ambil gambar", )
     ):
     print("paramsxxxx", view_images)
     file_data = await file.read()
@@ -20,8 +20,7 @@ async def upload_pdf(
     teks = markdown_service.extract_text_from_pdf(file_path)
     images = []
     if view_images == "true":
-        images = markdown_service.extract_images_from_pdf(file_path)
-    
+        images = markdown_fitz_service.extract_images_from_pdf(file_path)
     return {"filename": file.filename, "text": teks.replace("\n", " "), "images": images}
 
 @router.post("/upload-file-by-url")

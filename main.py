@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 from app.modules.user import user_router
 from app.modules.gen.markdown import markdown_router
 
@@ -18,6 +19,7 @@ app.contact = {
 # app.include_router(user_router.router)
 app.include_router(markdown_router.router)
 
+app.mount("/static", StaticFiles(directory="uploads"), name="static")
 # print("Nama Project:", settings.PROJECT_NAME)
 # print("Versi:", settings.PROJECT_VERSION)
 # print("Database URL:", settings.DATABASE_URL)
