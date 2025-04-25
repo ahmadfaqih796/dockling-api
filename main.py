@@ -1,4 +1,4 @@
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, Body
 from docling.document_converter import DocumentConverter
 from pydantic import BaseModel
 import tempfile
@@ -51,8 +51,8 @@ async def upload_file_by_url(payload: URLRequest):
 
 
 @app.post("/upload-file-by-url2")
-async def upload_file_by_url2(payload: URLRequest):
-    url = payload.url
+async def upload_file_by_url2(url : str = Body(...)):
+    print("url", url)
     converter = DocumentConverter()
     result = converter.convert(url)
     markdown = result.document.export_to_markdown()
