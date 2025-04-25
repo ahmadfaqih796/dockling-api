@@ -18,7 +18,6 @@ class URLRequest(BaseModel):
 async def upload_pdf(file: UploadFile = File(...)):
     file_path = os.path.join(UPLOAD_DIR, file.filename)
 
-    # Simpan file PDF
     with open(file_path, "wb") as f:
         f.write(await file.read())
 
