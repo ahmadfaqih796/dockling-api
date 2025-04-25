@@ -1,4 +1,5 @@
-from fastapi import APIRouter, File, UploadFile, Body
+from fastapi import APIRouter, File, UploadFile, Body, Query
+from typing import Literal
 from pydantic import BaseModel
 
 from . import markdown_service
@@ -9,11 +10,19 @@ class URLRequest(BaseModel):
     url: str
 
 @router.post("/upload-pdf")
-async def upload_pdf(file: UploadFile = File(...)):
+async def upload_pdf(
+    file: UploadFile = File(...),
+    view_images: Literal["true", "false"] = Query("false", description="Set 'true' untuk ambil gambar", alias="view_images", title="view_images", )
+    ):
+    print("paramsxxxx", view_images)
     file_data = await file.read()
     file_path = markdown_service.save_upload_file(file_data, file.filename)
     teks = markdown_service.extract_text_from_pdf(file_path)
-    return {"filename": file.filename, "text": teks.replace("\n", " ")}
+    images = []
+    if view_images == "true":
+        images = markdown_service.extract_images_from_pdf(file_path)
+    
+    return {"filename": file.filename, "text": teks.replace("\n", " "), "images": images}
 
 @router.post("/upload-file-by-url")
 async def upload_file_by_url(payload: URLRequest):

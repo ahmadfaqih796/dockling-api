@@ -2,6 +2,7 @@ import os
 import fitz
 import requests
 import tempfile
+import base64
 from docling.document_converter import DocumentConverter
 
 UPLOAD_DIR = "uploads"
@@ -12,6 +13,32 @@ def save_upload_file(file, filename="dummy.pdf"):
     with open(file_path, "wb") as f:
         f.write(file)
     return file_path
+ 
+def extract_images_from_pdf(file_path: str):
+    doc = fitz.open(file_path) 
+    images = []
+
+    for page_index in range(len(doc)):
+        page = doc[page_index]
+        image_list = page.get_images(full=True)
+
+        for img_index, img in enumerate(image_list):
+            xref = img[0]
+            base_image = doc.extract_image(xref)
+            image_bytes = base_image["image"]
+            image_ext = base_image["ext"]
+
+            encoded = base64.b64encode(image_bytes).decode("utf-8")
+
+            images.append({
+                "page": page_index + 1,
+                "index": img_index,
+                "extension": image_ext,
+                "base64": encoded
+            })
+    doc.close()
+    return images
+
 
 def extract_text_from_pdf(file_path: str):
     doc = fitz.open(file_path)
